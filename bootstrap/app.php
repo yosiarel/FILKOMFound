@@ -11,7 +11,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+    // Global middleware (aktif di semua request)
+    $middleware->append([
+        \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class,
+    ]);
+
+    // Route middleware alias
+    $middleware->alias([
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'check.nim' => \App\Http\Middleware\CheckNIM::class,
+        'admin' => \App\Http\Middleware\AdminOnly::class,
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
