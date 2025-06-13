@@ -11,11 +11,17 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * Tampilkan form login
+     */
     public function showLoginForm()
     {
-        return view('pages.auth.login');
+        return view('auth.login');
     }
 
+    /**
+     * Proses login user
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -25,8 +31,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            return redirect()->intended('/dashboard');
+            return redirect()->intended(route('user.dashboard'));
         }
 
         throw ValidationException::withMessages([
@@ -34,11 +39,17 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Tampilkan form register
+     */
     public function showRegisterForm()
     {
-        return view('pages.auth.register');
+        return view('auth.register');
     }
 
+    /**
+     * Proses registrasi user baru
+     */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -53,15 +64,17 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'nim' => $validated['nim'],
             'password' => Hash::make($validated['password']),
-            'role' => 'mahasiswa', // Set role default untuk mahasiswa
+            'role' => 'mahasiswa',
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Registrasi berhasil!');
+        return redirect()->route('user.dashboard')->with('success', 'Registrasi berhasil!');
     }
 
-
+    /**
+     * Logout user dan invalidate session
+     */
     public function logout(Request $request)
     {
         Auth::logout();

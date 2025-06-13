@@ -3,3 +3,14 @@
 @tailwind utilities;
 
 
+@media (min-width: 768px) {
+    #mobile-menu-button {
+        display: none !important;
+    }
+
+    #mobile-menu {
+        display: none !important;
+    }
+}
+
+

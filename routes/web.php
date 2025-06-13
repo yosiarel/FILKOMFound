@@ -20,13 +20,19 @@ use App\Http\Controllers\Admin\AnnouncementController;
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 Route::middleware('guest')->group(function () {
-    // Auth
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 
-    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', fn () => view('pages.user.dashboard'))->name('user.dashboard');
+    // Route lain untuk user login
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
