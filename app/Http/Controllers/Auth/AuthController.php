@@ -55,7 +55,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'nim' => ['required', 'string', 'regex:/^\d{2}51(502|503|504|506|507)\d{6}$/', 'unique:users'],
+            'nim' => ['required', 'string', 'regex:/^\d{2}51(502|503|504|506|507)(001|011|071)\d{5}$/', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
