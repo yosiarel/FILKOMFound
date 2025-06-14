@@ -21,8 +21,8 @@
                 Don't have an account? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Register</a>
             </div>
 
-            <button type="submit" class="w-full bg-[#002C6A] text-white rounded-full py-2 font-semibold hover:bg-blue-800">
-                Daftar
+            <button type="submit" class="w-full bg-[#002C6A] text-white rounded-full py-2 font-semibold hover:bg-blue-800"> 
+                Masuk 
             </button>
         </form>
     </div>

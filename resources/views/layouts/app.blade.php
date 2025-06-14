@@ -33,7 +33,7 @@
     </header>
 
     <!-- Konten Utama -->
-    <main class="min-h-screen px-4 sm:px-8 py-6">
+    <main class="mmin-h-screen px-4 sm:px-8 py-6">
         @yield('content')
     </main>
 
