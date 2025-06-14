@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Admin FILKOM',
             'email' => 'admin@filkom.ub.ac.id',
-            'nim' => null, // Admin tidak punya NIM
+            'nim' => '235150200111050', // Admin tidak punya NIM
             'role' => 'admin',
             'password' => Hash::make('admin123'), // Gunakan hash untuk keamanan
         ]);
