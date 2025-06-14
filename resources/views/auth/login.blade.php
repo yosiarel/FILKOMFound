@@ -9,7 +9,7 @@
     <div class="bg-white w-full max-w-sm rounded-xl shadow-md p-6">
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
-            <input name="email" type="text" placeholder="NIM/Email UB" class="w-full border border-blue-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+            <input name="email" type="text" placeholder="Email UB" class="w-full border border-blue-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
             <input name="password" type="password" placeholder="Password" class="w-full border border-blue-600 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
 
             <div class="flex items-center">
@@ -22,7 +22,7 @@
             </div>
 
             <button type="submit" class="w-full bg-[#002C6A] text-white rounded-full py-2 font-semibold hover:bg-blue-800"> 
-                Masuk 
+                Masuk
             </button>
         </form>
     </div>

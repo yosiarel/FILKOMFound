@@ -43,7 +43,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Middleware 'check.nim' dan 'check.user.status' akan dijalankan setelah otentikasi
 | dan pengecekan peran untuk validasi tambahan.
 */
-Route::middleware(['auth', 'role:mahasiswa', 'check.nim', 'check.user.status'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'checkRole', 'check.nim', 'check.user.status'])->prefix('user')->name('user.')->group(function () {
     // Dashboard untuk mahasiswa
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 

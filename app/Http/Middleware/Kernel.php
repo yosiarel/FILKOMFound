@@ -10,8 +10,6 @@ class Kernel extends HttpKernel
      * The application's global HTTP middleware stack.
      *
      * These middleware are run during every request to your application.
-     * Use this for middleware that truly needs to run for ALL requests,
-     * like handling maintenance mode or preparing strings.
      *
      * @var array
      */
@@ -22,14 +20,11 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        // \App\Http\Middleware\ForceHttps::class, // Contoh middleware global opsional
+        // \App\Http\Middleware\ForceHttps::class, // Contoh middleware kustom atau yang ingin Anda tambahkan secara global
     ];
 
     /**
      * The application's route middleware groups.
-     *
-     * These middleware groups are applied to web and API routes.
-     * Custom authentication-dependent middleware can often be placed here.
      *
      * @var array
      */
@@ -38,26 +33,17 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class, // Opsional: jika Anda menggunakan otentikasi berbasis sesi
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // Middleware kustom yang bergantung pada sesi atau otentikasi pengguna
-            // dan perlu dijalankan di seluruh grup 'web' (misal, setelah otentikasi berhasil)
-            // Pastikan ini berjalan setelah \App\Http\Middleware\Authenticate jika diterapkan di rute web
-            // Jika Anda ingin ini berjalan untuk setiap rute yang dilindungi oleh 'auth',
-            // lebih baik definisikan alias di $routeMiddleware dan terapkan di rute.
-            // \App\Http\Middleware\CheckNIM::class,
-            // \App\Http\Middleware\CheckRole::class,
-            // \App\Http\Middleware\CheckUserStatus::class,
+            // \App\Http\Middleware\YourCustomWebMiddleware::class, // Contoh middleware kustom untuk grup 'web'
         ],
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // Middleware kustom untuk API, jika perlu setelah otentikasi API
-            // \App\Http\Middleware\YourCustomApiMiddleware::class,
+            // \App\Http\Middleware\YourCustomApiMiddleware::class, // Contoh middleware kustom untuk grup 'api'
         ],
     ];
 
@@ -65,7 +51,6 @@ class Kernel extends HttpKernel
      * The application's route middleware.
      *
      * These middleware may be assigned to groups or individual routes.
-     * This is the ideal place for most custom authorization/role-based middleware.
      *
      * @var array
      */
@@ -78,10 +63,9 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        // Menambahkan middleware kustom Anda di sini dengan alias
+        // Menambahkan alias 'role' yang digunakan di routes/web.php
+        'checkRole' => \App\Http\Middleware\CheckRole::class, // 
         'check.nim' => \App\Http\Middleware\CheckNIM::class,
-        'check.role' => \App\Http\Middleware\CheckRole::class,
-        // Mengoreksi namespace untuk CheckUserStatus (seharusnya 'App', bukan 'APP')
         'check.user.status' => \App\Http\Middleware\CheckUserStatus::class,
         'admin.only' => \App\Http\Middleware\AdminOnly::class,
     ];

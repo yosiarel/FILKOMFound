@@ -25,7 +25,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
@@ -67,7 +67,6 @@ class AuthController extends Controller
             'role' => 'mahasiswa',
         ]);
 
-        Auth::login($user);
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil!');
     }
