@@ -64,7 +64,7 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         // Menambahkan alias 'role' yang digunakan di routes/web.php
-        'checkRole' => \App\Http\Middleware\CheckRole::class, // 
+        'checkRole' => \app\Http\Middleware\CheckRole::class, // Middleware untuk memeriksa peran pengguna
         'check.nim' => \App\Http\Middleware\CheckNIM::class,
         'check.user.status' => \App\Http\Middleware\CheckUserStatus::class,
         'admin.only' => \App\Http\Middleware\AdminOnly::class,

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\VerificationController;
 use App\Http\Controllers\Admin\AnnouncementController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Public / Guest Routes
@@ -43,11 +44,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Middleware 'check.nim' dan 'check.user.status' akan dijalankan setelah otentikasi
 | dan pengecekan peran untuk validasi tambahan.
 */
-Route::middleware(['auth', 'checkRole', 'check.nim', 'check.user.status'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'checkRole:mahasiswa'])->prefix('user')->name('user.')->group(function () {
     // Dashboard untuk mahasiswa
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-
-    // Menghapus rute '/beranda' yang redundant jika '/dashboard' sudah menampilkan halaman utama user
 
     // Items
     Route::get('/items', [UserItemController::class, 'index'])->name('items.index');
@@ -79,7 +78,7 @@ Route::middleware(['auth', 'checkRole', 'check.nim', 'check.user.status'])->pref
 | Middleware 'role:admin' akan memastikan pengguna memiliki peran 'admin'.
 | Middleware 'admin.only' (jika ada logika tambahan) akan dijalankan.
 */
-Route::middleware(['auth', 'role:admin', 'admin.only'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'checkRole:admin', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard untuk admin
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
