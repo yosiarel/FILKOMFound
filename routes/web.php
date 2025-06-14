@@ -16,9 +16,11 @@ use App\Http\Controllers\Admin\AnnouncementController;
 |--------------------------------------------------------------------------
 | Public / Guest Routes
 |--------------------------------------------------------------------------
+| Rute yang dapat diakses oleh semua pengguna (tidak terotentikasi).
 */
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 
+// Grup rute untuk pengguna tamu saja (belum login)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -27,11 +29,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn () => view('beranda'))->name('user.dashboard');
-    // Route lain untuk user login
-});
-
+// Rute logout, dapat diakses oleh pengguna yang sudah terotentikasi
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
@@ -39,13 +37,17 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 | Authenticated User Routes (Mahasiswa)
 |--------------------------------------------------------------------------
+| Rute untuk pengguna yang terotentikasi dengan peran 'mahasiswa'.
+| Middleware 'auth' akan memastikan pengguna sudah login.
+| Middleware 'role:mahasiswa' akan memastikan pengguna memiliki peran 'mahasiswa'.
+| Middleware 'check.nim' dan 'check.user.status' akan dijalankan setelah otentikasi
+| dan pengecekan peran untuk validasi tambahan.
 */
-Route::middleware(['auth', 'role:mahasiswa'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'role:mahasiswa', 'check.nim', 'check.user.status'])->prefix('user')->name('user.')->group(function () {
+    // Dashboard untuk mahasiswa
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/beranda', function () {
-    return view('beranda');
-    })->middleware(['auth'])->name('beranda');
 
+    // Menghapus rute '/beranda' yang redundant jika '/dashboard' sudah menampilkan halaman utama user
 
     // Items
     Route::get('/items', [UserItemController::class, 'index'])->name('items.index');
@@ -64,16 +66,21 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('user')->name('user.')->gr
     Route::get('/profile', [UserProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
 
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    // Logout (opsional, sudah ada global logout, tapi bisa saja ada spesifik user logout)
+    // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
 |--------------------------------------------------------------------------
+| Rute untuk pengguna dengan peran 'admin'.
+| Middleware 'auth' akan memastikan pengguna sudah login.
+| Middleware 'role:admin' akan memastikan pengguna memiliki peran 'admin'.
+| Middleware 'admin.only' (jika ada logika tambahan) akan dijalankan.
 */
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'admin.only'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard untuk admin
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Verification
@@ -89,4 +96,34 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/announcements/{id}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
     Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| General Authenticated Routes (Fallback/Redirect)
+|--------------------------------------------------------------------------
+| Rute ini berfungsi sebagai penanganan umum untuk pengguna yang terotentikasi.
+| Jika ada peran khusus yang belum ditangani (misal: bukan mahasiswa/admin),
+| atau untuk landing page setelah login sebelum redirect ke dashboard spesifik.
+*/
+Route::middleware('auth')->group(function () {
+    // Jika tidak ada peran spesifik yang sesuai, arahkan ke dashboard user secara default
+    // Anda bisa menambahkan logika redirect di sini berdasarkan peran pengguna
+    Route::get('/dashboard', function () {
+        // Contoh: Redirect berdasarkan peran setelah login
+        if (auth()->check()) {
+            if (auth()->user()->hasRole('admin')) { // Asumsi ada method hasRole() di model User
+                return redirect()->route('admin.dashboard');
+            } elseif (auth()->user()->hasRole('mahasiswa')) {
+                return redirect()->route('user.dashboard');
+            }
+            // Jika ada peran lain atau tidak ada peran yang cocok, bisa ke halaman default
+            return view('beranda'); // Atau halaman default lainnya
+        }
+        return redirect()->route('login');
+    })->name('dashboard'); // Nama rute ini bisa 'dashboard' saja, tanpa 'user.'
+
+    // Jika Anda ingin semua pengguna yang terotentikasi melihat halaman 'beranda' sebagai default
+    // dan kemudian rute role-specific akan diakses setelahnya, ini bisa dipertimbangkan.
+    // Route::get('/beranda', fn () => view('beranda'))->name('beranda');
 });
