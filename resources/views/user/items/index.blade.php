@@ -4,17 +4,6 @@
 
 @section('content')
 
-{{-- Bagian ini hanya untuk demo, nantinya data ini akan Anda dapatkan dari Controller --}}
-@php
-    $items = [
-        (object) ['name' => 'Earphone', 'found_date' => \Carbon\Carbon::parse('2025-04-18'), 'location' => 'Gedung F', 'status' => 'Belum Dikembalikan'],
-        (object) ['name' => 'Earphone', 'found_date' => \Carbon\Carbon::parse('2025-04-18'), 'location' => 'Gedung F', 'status' => 'Belum Dikembalikan'],
-        (object) ['name' => 'Earphone', 'found_date' => \Carbon\Carbon::parse('2025-04-18'), 'location' => 'Gedung F', 'status' => 'Belum Dikembalikan'],
-        (object) ['name' => 'Tumbler', 'found_date' => \Carbon\Carbon::parse('2025-04-17'), 'location' => 'Gedung H', 'status' => 'Sudah Dikembalikan'],
-        (object) ['name' => 'Kunci Motor', 'found_date' => \Carbon\Carbon::parse('2025-04-16'), 'location' => 'Gazebo', 'status' => 'Belum Dikembalikan'],
-    ];
-@endphp
-
 <div class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
@@ -22,70 +11,80 @@
             Daftar Barang Temuan
         </h1>
 
+        {{-- Menampilkan notifikasi sukses setelah lapor/update/hapus barang --}}
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            {{-- Bagian filter bisa dibiarkan kosong untuk saat ini --}}
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                <button class="w-full sm:w-auto bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 transition">
-                    <i class="fas fa-sort"></i>
-                    <span>Sort</span>
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-
-                <div class="relative w-full sm:w-64">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </span>
-                    <input type="search" name="search" placeholder="Search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button class="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition">
-                        Posted at <i class="fas fa-times ml-1"></i>
-                    </button>
-                    <button class="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition">
-                        Status <i class="fas fa-times ml-1"></i>
-                    </button>
-                </div>
             </div>
 
             <div>
-                {{-- Ganti route() dengan route yang sesuai untuk form lapor barang --}}
-                <a href="#" class="w-full sm:w-auto flex items-center justify-center bg-[#005EFF] hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-colors">
+                <a href="{{ route('user.items.create') }}" class="w-full sm:w-auto flex items-center justify-center bg-[#005EFF] hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-colors">
                     Laporkan Temuan
                 </a>
             </div>
         </div>
 
+        {{-- Daftar Barang dari Database --}}
         <div class="space-y-4">
             @forelse ($items as $item)
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div class="flex-grow">
                         <p class="font-bold text-lg text-gray-900">{{ $item->name }}</p>
                         <p class="text-sm text-gray-500">
-                            {{ $item->found_date->format('d F Y') }}
+                            {{-- Menggunakan Carbon untuk format tanggal dari database --}}
+                            {{ \Carbon\Carbon::parse($item->found_date)->translatedFormat('d F Y') }}
                             <span class="mx-1">&middot;</span>
                             {{ $item->location }}
                         </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Dilaporkan oleh: {{ $item->user->name ?? 'Anonim' }}
+                        </p>
                     </div>
 
-                    <div class="w-full sm:w-auto flex-shrink-0 text-left sm:text-right">
-                        @if($item->status == 'Belum Dikembalikan')
-                            <span class="px-4 py-1.5 text-sm font-semibold text-orange-800 bg-orange-100 rounded-full">
-                                {{ $item->status }}
-                            </span>
-                        @else
-                            <span class="px-4 py-1.5 text-sm font-semibold text-green-800 bg-green-100 rounded-full">
-                                {{ $item->status }}
-                            </span>
+                    <div class="w-full sm:w-auto flex-shrink-0 flex items-center gap-4">
+                        <span class="px-4 py-1.5 text-sm font-semibold 
+                            @if($item->status == 'Sudah Dikembalikan')
+                                bg-green-100 text-green-800
+                            @else
+                                bg-orange-100 text-orange-800
+                            @endif
+                            rounded-full">
+                            {{ $item->status }}
+                        </span>
+                        
+                        {{-- Opsi Edit & Hapus hanya untuk pemilik postingan --}}
+                        @if(auth()->id() == $item->user_id)
+                            <a href="{{ route('user.items.edit', $item->id) }}" class="text-gray-400 hover:text-blue-600" title="Edit">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <form action="{{ route('user.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-gray-400 hover:text-red-600" title="Hapus">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
             @empty
-                {{-- Tampilan jika tidak ada barang yang ditemukan --}}
+                {{-- Tampilan jika tidak ada barang yang ditemukan di database --}}
                 <div class="bg-white text-center p-12 rounded-xl shadow-sm border border-gray-200">
                     <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500 font-semibold">Belum ada barang temuan yang dilaporkan.</p>
                 </div>
             @endforelse
+        </div>
+
+        {{-- BARU: Link untuk navigasi halaman (pagination) --}}
+        <div class="mt-8">
+            {{ $items->links() }}
         </div>
 
     </div>

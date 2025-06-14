@@ -10,19 +10,25 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_barang');
-            $table->text('deskripsi')->nullable();
-            $table->string('lokasi');
-            $table->date('tanggal');
-            $table->enum('status', ['hilang', 'ditemukan'])->default('hilang');
-            $table->string('foto')->nullable(); // path gambar
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // pelapor
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('items', function (Blueprint $table) {
+        $table->id();
+
+        // Kolom untuk relasi ke tabel 'users'
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+        // Kolom-kolom dari form
+        $table->string('name'); // <-- Ini kolom yang dicari-cari
+        $table->text('description')->nullable();
+        $table->date('found_date');
+        $table->string('location');
+        $table->string('image')->nullable();
+        $table->string('status')->default('Belum Dikembalikan'); // Status default
+
+        // Kolom created_at dan updated_at
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
