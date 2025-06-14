@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
     #mobile-menu-button {
         display: none !important;
     }
@@ -11,6 +11,14 @@
     #mobile-menu {
         display: none !important;
     }
-}
+} */
 
+
+<style>
+  @media (min-width: 1024px) {
+    #mobile-menu-button {
+      display: none !important;
+    }
+  }
+</style>
 

@@ -11,75 +11,86 @@
     {{-- Anda perlu menambahkan link Font Awesome agar ikon menu mobile tampil --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     @vite('resources/css/app.css')
+    <script src="https://cdn.tailwindcss.com"></script> 
 </head>
 <body style="margin: 0;padding: 0; font-family: 'Poppins', sans-serif;">
-
     <!-- Header (navbar) -->
 
-<header class="bg-white sticky top-0 z-50 shadow-sm">
-    <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-        <!-- Logo + Menu -->
-        <div class="flex items-center space-x-6">
-            <img src="{{ asset('images/logo.png') }}" alt="FILKOMFound Logo" class="h-9 w-auto" />
+<header class="bg-white sticky top-0 z-50 shadow-sm font-poppins">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center">
+      <img src="{{ asset('images/logo.png') }}" alt="FILKOMFound Logo" class="h-12 w-auto" />
+    </div>
 
-            <!-- MENU DESKTOP -->
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="{{ route('user.dashboard') }}" class="text-gray-800 font-medium hover:text-[#EA8255] transition-colors">Beranda</a>
-                <a href="{{ route('user.items.index') }}" class="text-gray-800 font-medium hover:text-[#EA8255] transition-colors">Daftar Barang</a>
-                <a href="#" class="text-gray-800 font-medium hover:text-[#EA8255] transition-colors">Pengumuman</a>
-            </div>
-        </div>
-
-        <!-- AUTH BUTTONS (DESKTOP) -->
-        <div class="hidden md:flex items-center space-x-3">
-            @guest
-                <a href="{{ route('login') }}" class="px-6 py-2 border-2 border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition-colors">
-                    Masuk
-                </a>
-                <a href="{{ route('register') }}" class="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors">
-                    Register
-                </a>
-            @else
-                <span class="text-gray-800 font-semibold">{{ Auth::user()->name }}</span>
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="ml-4 px-5 py-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition-colors font-semibold">
-                    Logout
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-            @endguest
-        </div>
-
-        <!-- MOBILE MENU BUTTON -->
-        <div class="md:hidden">
-            <button id="mobile-menu-button" class="text-2xl text-gray-700 focus:outline-none">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
+    <!-- Navigasi Desktop -->
+    <nav class="hidden lg:flex space-x-10 text-base font-medium text-black">
+      <a href="{{ route('user.dashboard') }}" class="hover:text-red-500 transition">Beranda</a>
+      <a href="{{ route('user.items.index') }}" class="hover:text-red-500 transition">Daftar Barang</a>
+      <a href="#" class="hover:text-red-500 transition">Pengumuman</a>
     </nav>
 
-    <!-- MOBILE MENU -->
-    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
-        <div class="flex flex-col space-y-2">
-            <a href="{{ route('user.dashboard') }}" class="text-gray-800 font-medium hover:text-[#EA8255]">Beranda</a>
-            <a href="{{ route('user.items.index') }}" class="text-gray-800 font-medium hover:text-[#EA8255]">Daftar Barang</a>
-            <a href="#" class="text-gray-800 font-medium hover:text-[#EA8255]">Pengumuman</a>
-
-            @guest
-                <a href="{{ route('login') }}" class="mt-4 px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition-colors">
-                    Masuk
-                </a>
-                <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors">
-                    Register
-                </a>
-            @else
-                <span class="text-gray-800 font-semibold">{{ Auth::user()->name }}</span>
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();" class="mt-2 px-4 py-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition-colors font-semibold">
-                    Logout
-                </a>
-                <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-            @endguest
-        </div>
+    <!-- Auth Desktop -->
+    <div class="hidden lg:flex items-center space-x-4">
+      @guest
+        <a href="{{ route('login') }}"
+          class="px-6 py-2 border-2 border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition">
+          Masuk
+        </a>
+        <a href="{{ route('register') }}"
+          class="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition">
+          Register
+        </a>
+      @else
+        <span class="text-[#002C6A] font-semibold">{{ Auth::user()->name }}</span>
+        <a href="{{ route('logout') }}"
+          onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+          class="ml-4 px-5 py-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 transition font-semibold">
+          Logout
+        </a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
+      @endguest
     </div>
+
+    <!-- Tombol Hamburger -->
+    <button id="mobile-menu-button" class="lg:hidden text-2xl text-[#002C6A] focus:outline-none">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Dropdown Mobile -->
+  <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200 px-6 py-4 space-y-2 text-base">
+    <a href="{{ route('user.dashboard') }}" class="block text-[#002C6A] hover:text-[#EA8255]">Beranda</a>
+    <a href="{{ route('user.items.index') }}" class="block text-[#002C6A] hover:text-[#EA8255]">Daftar Barang</a>
+    <a href="#" class="block text-[#002C6A] hover:text-[#EA8255]">Pengumuman</a>
+
+    <div class="pt-4 border-t border-gray-200">
+      @guest
+        <a href="{{ route('login') }}"
+          class="block w-full text-center px-5 py-2 mb-2 border-2 border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50">
+          Masuk
+        </a>
+        <a href="{{ route('register') }}"
+          class="block w-full text-center px-5 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700">
+          Register
+        </a>
+      @else
+        <span class="block text-center font-semibold text-[#002C6A]">{{ Auth::user()->name }}</span>
+        <a href="{{ route('logout') }}"
+          onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();"
+          class="block mt-2 w-full text-center px-5 py-2 border border-red-500 text-red-500 rounded-full hover:bg-red-50 font-semibold">
+          Logout
+        </a>
+        <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
+      @endguest
+    </div>
+  </div>
 </header>
+
+
+
+
+
 
 
 
@@ -124,17 +135,24 @@
         </div>
     </footer>
 
-
+  
     {{-- Script untuk menu mobile, bisa diletakkan di sini atau di file JS terpisah --}}
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener('click', function () {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+  });
 </script>
+
+
+
+
 
 </body>
 </html>
