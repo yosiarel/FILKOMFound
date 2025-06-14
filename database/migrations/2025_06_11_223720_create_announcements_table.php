@@ -10,16 +10,21 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('announcements', function (Blueprint $table) {
-            $table->id();
-            $table->string('judul');
-            $table->text('isi');
-            $table->date('tanggal');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // admin
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('announcements', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+        // PASTIKAN BARIS INI ADA
+        $table->string('name'); 
+
+        $table->text('description')->nullable();
+        $table->dateTime('lost_time');
+        $table->string('estimated_location');
+        $table->string('image')->nullable();
+        $table->timestamps();
+    });
+}
 
 
     /**

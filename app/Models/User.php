@@ -6,7 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany; // Tambahkan ini jika menggunakan type-hinting
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -38,11 +38,19 @@ class User extends Authenticatable
 
     /**
      * Mendefinisikan bahwa seorang User bisa memiliki banyak Item (barang temuan).
-     * INI ADALAH FUNGSI YANG HILANG.
      */
     public function items(): HasMany
     {
         return $this->hasMany(Item::class);
+    }
+    
+    // <-- TAMBAHAN: Relasi untuk pengumuman barang hilang -->
+    /**
+     * Mendefinisikan bahwa seorang User bisa memiliki banyak Announcement.
+     */
+    public function announcements(): HasMany
+    {
+        return $this->hasMany(Announcement::class);
     }
 
     /**

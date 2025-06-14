@@ -8,9 +8,11 @@ use App\Http\Controllers\User\ItemController as UserItemController;
 use App\Http\Controllers\User\ReportController as UserReportController;
 use App\Http\Controllers\User\ClaimController as UserClaimController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
+// <-- TAMBAHAN: use statement untuk controller pengumuman user -->
+use App\Http\Controllers\User\AnnouncementController as UserAnnouncementController; 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\VerificationController;
-use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\AnnouncementController; // Ini untuk Admin, sudah benar
 
 
 /*
@@ -44,20 +46,24 @@ Route::middleware(['auth', 'checkRole:mahasiswa'])->prefix('user')->name('user.'
     // Dashboard untuk mahasiswa
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
-    // ===================================================================
-    // PERUBAHAN DI SINI: Rute untuk Items dibuat lengkap untuk CRUD
-    // ===================================================================
+    // Items (Barang Temuan)
     Route::get('/items', [UserItemController::class, 'index'])->name('items.index');
-    Route::get('/items/create', [UserItemController::class, 'create'])->name('items.create'); // <-- Rute yang hilang
+    Route::get('/items/create', [UserItemController::class, 'create'])->name('items.create');
     Route::post('/items', [UserItemController::class, 'store'])->name('items.store');
     Route::get('/items/{item}', [UserItemController::class, 'show'])->name('items.show');
     Route::get('/items/{item}/edit', [UserItemController::class, 'edit'])->name('items.edit');
-
     Route::put('/items/{item}', [UserItemController::class, 'update'])->name('items.update');
-    Route::delete('/items/{item}', [UserItemController::class, 'destroy'])->name('items.destroy'); // Opsional, untuk fungsi hapus
-    // ===================================================================
-    // Akhir Perubahan
-    // ===================================================================
+    Route::delete('/items/{item}', [UserItemController::class, 'destroy'])->name('items.destroy');
+
+    // <-- TAMBAHAN: Blok rute baru untuk Pengumuman Barang Hilang -->
+    // Announcements (Barang Hilang)
+    Route::get('/announcements', [UserAnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [UserAnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [UserAnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/announcements/{announcement}', [UserAnnouncementController::class, 'show'])->name('announcements.show');
+    Route::get('/announcements/{announcement}/edit', [UserAnnouncementController::class, 'edit'])->name('announcements.edit');
+    Route::put('/announcements/{announcement}', [UserAnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/announcements/{announcement}', [UserAnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
     // Reports
     Route::get('/reports/create', [UserReportController::class, 'create'])->name('reports.create');
@@ -89,7 +95,7 @@ Route::middleware(['auth', 'checkRole:admin', 'admin'])->prefix('admin')->name('
     Route::post('/verifications/{id}/approve', [VerificationController::class, 'approve'])->name('verifications.approve');
     Route::post('/verifications/{id}/reject', [VerificationController::class, 'reject'])->name('verifications.reject');
 
-    // Announcements
+    // Announcements (Admin)
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
@@ -113,7 +119,7 @@ Route::middleware('auth')->group(function () {
             } elseif (auth()->user()->hasRole('mahasiswa')) {
                 return redirect()->route('user.dashboard');
             }
-            return view('beranda'); // Halaman default jika tidak ada peran yang cocok
+            return view('beranda');
         }
         return redirect()->route('login');
     })->name('dashboard');
