@@ -11,12 +11,12 @@ class AnnouncementController extends Controller
     public function index()
     {
         $announcements = Announcement::latest()->paginate(10);
-        return view('admin.announcements.index', compact('announcements'));
+        return view('announcements.index', compact('announcements'));
     }
 
     public function create()
     {
-        return view('admin.announcements.create');
+        return view('announcements.create');
     }
 
     public function store(Request $request)

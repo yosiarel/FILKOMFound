@@ -28,7 +28,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn () => view('views.beranda'))->name('user.dashboard');
+    Route::get('/dashboard', fn () => view('beranda'))->name('user.dashboard');
     // Route lain untuk user login
 });
 
@@ -40,10 +40,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Authenticated User Routes (Mahasiswa)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'role:mahasiswa'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/beranda', function () {
-    return view('views.beranda');
+    return view('beranda');
     })->middleware(['auth'])->name('beranda');
 
 

@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Mahasiswa 1',
             'email' => 'mhs1@ub.ac.id',
             'nim' => '235150200111058',
-            'role' => 'user',
+            'role' => 'mahasiswa',
             'password' => Hash::make('password'),
         ]);
 
@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Mahasiswa 2',
             'email' => 'mhs2@ub.ac.id',
             'nim' => '235150401111052',
-            'role' => 'user',
+            'role' => 'mahasiswa',
             'password' => Hash::make('password'),
         ]);
     }
