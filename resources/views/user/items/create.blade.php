@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.master')
 
 {{-- Menentukan judul halaman secara dinamis --}}
 @section('title', isset($item) ? 'Edit Barang Temuan' : 'Laporkan Barang Temuan')

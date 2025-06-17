@@ -1,5 +1,5 @@
 <!-- resources/views/auth/register.blade.php -->
-@extends('layouts.guest')
+@extends('layouts.master')
 
 @section('title', 'Daftar Akun')
 
