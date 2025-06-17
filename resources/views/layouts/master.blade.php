@@ -25,11 +25,19 @@
 
     <!-- Navigasi Desktop -->
     <nav class="hidden lg:flex space-x-10 text-base font-medium text-black">
-      <a href="{{ route('user.dashboard') }}" class="hover:text-red-500 transition">Beranda</a>
-      <a href="{{ route('user.items.index') }}" class="hover:text-red-500 transition">Daftar Barang</a>
-      <a href="#" class="hover:text-red-500 transition">Pengumuman</a>
+      <a href="{{ route('user.dashboard') }}"
+        class="{{ Request::routeIs('user.dashboard') ? 'text-[#EA8255] font-semibold' : 'hover:text-orange-400 transition' }}">
+        Beranda
+      </a>
+      <a href="{{ route('user.items.index') }}"
+        class="{{ Request::routeIs('user.items.*') ? 'text-[#EA8255] font-semibold' : 'hover:text-orange-400 transition' }}">
+        Daftar Barang
+      </a>
+      <a href="{{ route('user.announcements.index') }}"
+        class="{{ Request::routeIs('user.announcements.*') ? 'text-[#EA8255] font-semibold' : 'hover:text-orange-400 transition' }}">
+        Pengumuman
+      </a>
     </nav>
-
     <!-- Auth Desktop -->
     <div class="hidden lg:flex items-center space-x-4">
       @guest

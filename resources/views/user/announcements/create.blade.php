@@ -1,5 +1,7 @@
 @extends('layouts.master')
 
+{{-- Menentukan judul halaman secara dinamis --}}
+
 @section('title', 'Buat Pengumuman Barang Hilang')
 
 @section('content')

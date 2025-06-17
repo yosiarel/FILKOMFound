@@ -50,8 +50,8 @@
 
                     <div>
                         <label for="found_date" class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Ditemukan</label>
-                        <input type="date" name="found_date" id="found_date"
-                               value="{{ old('found_date', $isEdit ? ($item->found_date ? $item->found_date->format('Y-m-d') : '') : '') }}"
+                        <input type="datetime-local" name="found_date" id="found_date"
+                               value="{{ old('found_date', $isEdit ? ($item->found_date ? $item->found_date->format('Y-m-d\TH:i') : now()->format('Y-m-d')) : now()->format('Y-m-d\TH:i'))}}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
 
@@ -66,7 +66,7 @@
                         <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
                         <textarea name="description" id="description" rows="4"
                                   placeholder="Deskripsikan ciri-ciri barang, warna, kondisi, dll."
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('description', 'value', $isEdit ? $item->description : '') }}</textarea>
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('description', $isEdit ? $item->description : '') }}</textarea>
                     </div>
 
                     <div class="md:col-span-2">
