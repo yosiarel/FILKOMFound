@@ -4,7 +4,7 @@
 @section('title', 'Daftar Akun')
 
 @section('content')
-<div class="min-h-screen bg-[#002C6A] flex flex-col items-center justify-center px-6 py-10">
+<div class="min-h-screen bg-blue-900 flex flex-col items-center justify-center px-6 py-10">
     <h1 class="text-white text-2xl font-bold mb-6">Daftar Akun</h1>
 
     <div class="bg-white w-full max-w-sm rounded-xl shadow-md p-6">

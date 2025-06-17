@@ -34,7 +34,7 @@ Route::middleware('guest')->group(function () {
 
 // Rute logout, dapat diakses oleh pengguna yang sudah terotentikasi
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get'); // Tambahan untuk GET logout
 
 /*
 |--------------------------------------------------------------------------

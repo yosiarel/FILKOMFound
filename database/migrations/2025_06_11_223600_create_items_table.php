@@ -18,7 +18,7 @@ return new class extends Migration
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
         // Kolom-kolom dari form
-        $table->string('name'); // <-- Ini kolom yang dicari-cari
+        $table->string('name'); 
         $table->text('description')->nullable();
         $table->date('found_date');
         $table->string('location');
