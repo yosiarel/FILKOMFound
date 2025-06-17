@@ -3,7 +3,7 @@
 @section('title', 'Profil Pengguna') {{-- Judul halaman spesifik --}}
 
 @section('content')
-<div class="min-h-screen bg-gray-100 flex flex-col items-center py-8 font-poppins">
+<div class="min-h-screen bg-[#D8E2F4] flex flex-col items-center py-8 font-poppins">
     {{-- Main Content - Profile Section --}}
     <div class="container mx-auto px-4 mt-8 w-full max-w-lg">
         {{-- Back Button and Page Title --}}
@@ -20,7 +20,10 @@
         <div class="bg-[#002C6A] text-white rounded-lg p-6 mb-8 shadow-md flex items-center space-x-4">
             <div class="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0 overflow-hidden">
                 {{-- Ganti dengan path gambar profil asli. Gunakan Auth::user()->profile_picture jika ada --}}
-                <img src="https://via.placeholder.com/150/FF69B4/FFFFFF?text=TL" alt="Profile Picture" class="rounded-full w-full h-full object-cover">
+               <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-[#002C6A] p-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5.121 17.804A4 4 0 018 16h8a4 4 0 012.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
             </div>
             <div>
                 <h2 class="text-xl font-bold">{{ Auth::user()->name ?? 'Nama Pengguna' }}</h2> {{-- Ambil nama dari user yang login --}}
@@ -31,7 +34,7 @@
 
         {{-- Navigation Links --}}
         <div class="bg-white rounded-lg shadow-md p-6">
-            <a href="{{ route('profile.announcements') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
+            <a href="{{ route('user.profile.announcementshistory') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
                 <div class="flex items-center space-x-4">
                     <div class="bg-gray-100 rounded-full p-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,7 +48,7 @@
                 </svg>
             </a>
 
-            <a href="{{ route('profile.found-items') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
+            <a href="{{ route('user.profile.foundhistory') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
                 <div class="flex items-center space-x-4">
                     <div class="bg-gray-100 rounded-full p-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,7 +62,7 @@
                 </svg>
             </a>
 
-            <a href="{{ route('profile.claimed-items') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
+            <a href="{{ route('user.profile.claimedhistory') }}" class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 -mx-6 px-6 transition duration-150 ease-in-out">
                 <div class="flex items-center space-x-4">
                     <div class="bg-gray-100 rounded-full p-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

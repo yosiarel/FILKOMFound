@@ -72,7 +72,7 @@ class ProfileController extends Controller
                             ->orderByDesc('created_at')
                             ->get();
 
-        return view('profile.announcement', compact('lostItems'));
+        return view('profile.announcements.history', compact('lostItems'));
     }
 
     /**
@@ -91,7 +91,7 @@ class ProfileController extends Controller
                             ->orderByDesc('created_at')
                             ->get();
 
-        return view('profile.found', compact('foundItems'));
+        return view('profile.found.history', compact('foundItems'));
     }
 
     /**
@@ -109,6 +109,6 @@ class ProfileController extends Controller
                         ->orderByDesc('created_at')
                         ->get();
 
-        return view('profile.claim', compact('claims'));
+        return view('profile.claims.history', compact('claims'));
     }
 }

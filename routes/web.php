@@ -81,9 +81,9 @@ Route::middleware(['auth', 'checkRole:mahasiswa'])->prefix('user')->name('user.'
     // =====================================================================
     //           *** RUTE BARU UNTUK HISTORI DI HALAMAN PROFIL ***
     // =====================================================================
-    Route::get('/profile/lost-items', [UserProfileController::class, 'announcements'])->name('profile.announcements'); // Menggunakan nama method 'announcements' di UserProfileController
-    Route::get('/profile/found-items', [UserProfileController::class, 'foundItems'])->name('profile.found-items');
-    Route::get('/profile/claimed-items', [UserProfileController::class, 'claimedItems'])->name('profile.claimed-items');
+    Route::get('/profile/lost-items', [UserProfileController::class, 'announcements'])->name('profile.announcementshistory'); // Menggunakan nama method 'announcements' di UserProfileController
+    Route::get('/profile/found-items', [UserProfileController::class, 'foundItems'])->name('profile.foundhistory');
+    Route::get('/profile/claimed-items', [UserProfileController::class, 'claimedItems'])->name('profile.claimedhistory');
     // =====================================================================
 });
 
