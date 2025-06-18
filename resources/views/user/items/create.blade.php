@@ -24,7 +24,7 @@
             {{-- Menampilkan error validasi jika ada --}}
             @if ($errors->any())
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
-                    <strong class="font-bold">Oops!</strong>
+                    <strong class="font-bold">Oops! Terjadi kesalahan.</strong>
                     <ul class="mt-2 list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -42,16 +42,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     
                     <div class="md:col-span-2">
-                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Nama Barang</label>
-                        <input type="text" name="name" id="name" placeholder="Contoh: Earphone merk A"
-                               value="{{ old('name', $isEdit ? $item->name : '') }}"
+                        <label for="item_name" class="block text-sm font-semibold text-gray-700 mb-2">Nama Barang</label>
+                        <input type="text" name="item_name" id="item_name" placeholder="Contoh: Earphone merk A"
+                               value="{{ old('item_name', $isEdit ? $item->item_name : '') }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
 
                     <div>
                         <label for="found_date" class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Ditemukan</label>
                         <input type="datetime-local" name="found_date" id="found_date"
-                               value="{{ old('found_date', $isEdit ? ($item->found_date ? $item->found_date->format('Y-m-d\TH:i') : now()->format('Y-m-d')) : now()->format('Y-m-d\TH:i'))}}"
+                               value="{{ old('found_date', $isEdit ? \Carbon\Carbon::parse($item->found_date)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i'))}}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
 
@@ -77,7 +77,7 @@
                         @if ($isEdit && $item->image)
                             <div class="mt-4">
                                 <p class="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
-                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" class="w-32 h-32 object-cover rounded-lg shadow-md">
+                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->item_name }}" class="w-32 h-32 object-cover rounded-lg shadow-md">
                                 <p class="text-xs text-gray-500 mt-2">Pilih file baru jika Anda ingin menggantinya.</p>
                             </div>
                         @endif

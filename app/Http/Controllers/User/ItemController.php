@@ -33,7 +33,7 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'item_name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
             'found_date' => 'required|date',
@@ -71,7 +71,7 @@ class ItemController extends Controller
         $this->authorize('update', $item);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'item_name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
             'found_date' => 'required|date',

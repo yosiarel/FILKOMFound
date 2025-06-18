@@ -10,25 +10,25 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('items', function (Blueprint $table) {
-        $table->id();
+    {
+        Schema::create('items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-        // Kolom untuk relasi ke tabel 'users'
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            // GUNAKAN 'item_name' KARENA SELURUH APLIKASI SUDAH DISESUAIKAN
+            $table->string('item_name'); 
+            
+            $table->text('description');
+            $table->string('location');
+            $table->date('found_date');
+            $table->string('image')->nullable();
 
-        // Kolom-kolom dari form
-        $table->string('name'); 
-        $table->text('description')->nullable();
-        $table->date('found_date');
-        $table->string('location');
-        $table->string('image')->nullable();
-        $table->string('status')->default('Belum Dikembalikan'); // Status default
+            // GUNAKAN ENUM UNTUK KONSISTENSI DATA DAN LOGIKA APLIKASI
+            $table->enum('status', ['found', 'claimed', 'returned'])->default('found');
 
-        // Kolom created_at dan updated_at
-        $table->timestamps();
-    });
-}
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

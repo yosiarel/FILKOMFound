@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Casts\Attribute; // Pastikan ini ada di atas
 
 class Item extends Model
 {
@@ -14,17 +15,18 @@ class Item extends Model
 
     /**
      * The attributes that are mass assignable.
-     * DIUBAH: Disesuaikan dengan kolom dari form dan controller.
+     * Pastikan ini cocok dengan nama kolom di file migrasi Anda.
+     *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 
+        'user_id',
+        'item_name', // <-- PERBAIKAN 1: Harus 'item_name', bukan 'name'
         'description', 
         'location',
         'found_date',
         'image', 
         'status',
-        'user_id'
     ];
 
     /**
@@ -33,14 +35,6 @@ class Item extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get all of the reports for the Item.
-     */
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class);
     }
 
     /**
@@ -57,5 +51,22 @@ class Item extends Model
     public function verification(): HasOne
     {
         return $this->hasOne(Verification::class);
+    }
+
+    /**
+     * PERBAIKAN 2: Accessor untuk mengubah nilai 'status' menjadi teks yang mudah dibaca.
+     * Logika accessor harus berada di dalam sebuah method.
+     * Method ini akan membuat properti virtual baru bernama 'formatted_status'.
+     */
+    protected function formattedStatus(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match ($this->status) {
+                'found' => 'Tersedia',
+                'claimed' => 'Sedang Diklaim',
+                'returned' => 'Sudah Dikembalikan',
+                default => 'Tidak Diketahui',
+            },
+        );
     }
 }
