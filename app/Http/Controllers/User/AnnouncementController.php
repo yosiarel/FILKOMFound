@@ -116,4 +116,5 @@ class AnnouncementController extends Controller
         // Redirect kembali ke halaman sebelumnya (misal: halaman riwayat) dengan pesan sukses
         return redirect()->back()->with('success', 'Pengumuman berhasil dihapus.');
     }
+    
 }

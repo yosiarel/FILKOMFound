@@ -69,13 +69,13 @@ class ProfileController extends Controller
      */
     public function foundItemsHistory()
     {
-        $user = Auth::user();
-        // Mengambil dari model Item
-        $items = Item::where('user_id', $user->id)
-                     ->latest()
-                     ->paginate(10);
+         $user = Auth::user();
+    // TAMBAHKAN ->with('verification') untuk mengambil data verifikasi
+         $items = Item::with('verification')
+                 ->where('user_id', $user->id)
+                 ->latest()
+                 ->paginate(10);
 
-        // Anda perlu membuat view ini: resources/views/profile/history/found_items.blade.php
         return view('profile.found.history', compact('items'));
     }
 
