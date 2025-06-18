@@ -27,6 +27,7 @@ class Item extends Model
         'found_date',
         'image', 
         'status',
+        'verified_at', 
     ];
 
     /**
@@ -68,5 +69,27 @@ class Item extends Model
                 default => 'Tidak Diketahui',
             },
         );
+    }
+    public function scopeFilter($query, array $filters)
+    {
+    // Filter berdasarkan kata kunci pencarian (search)
+    $query->when($filters['search'] ?? false, function ($query, $search) {
+        return $query->where(function ($query) use ($search) {
+            $query->where('item_name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%')
+                  ->orWhere('location', 'like', '%' . $search . '%');
+        });
+    });
+
+    // Filter berdasarkan status
+    $query->when($filters['status'] ?? false, function ($query, $status) {
+        return $query->where('status', $status);
+    });
+
+     $query->when($filters['found_date'] ?? false, function ($query, $date) {
+        return $query->whereDate('found_date', $date); // Membandingkan tanggal saja
+    });
+    
+    // Anda bisa menambahkan filter lain di sini, misalnya berdasarkan tanggal (posted_at)
     }
 }

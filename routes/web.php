@@ -10,6 +10,7 @@ use App\Http\Controllers\User\AnnouncementController;
 use App\Http\Controllers\User\ProfileController;
 // Controller khusus Admin
 use App\Http\Controllers\Admin\VerificationController;
+use App\Http\Controllers\User\ClaimController;
 
 
 /*
@@ -56,6 +57,7 @@ Route::middleware(['auth', 'checkRole:admin,mahasiswa'])->name('user.')->group(f
 
     // Resource untuk Announcements (Barang Hilang)
     Route::resource('announcements', AnnouncementController::class);
+    Route::post('/claims/{item}', [ClaimController::class, 'store'])->name('claims.store');
 
 
     /*

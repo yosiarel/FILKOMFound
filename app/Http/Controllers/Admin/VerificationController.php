@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Verification;
 use App\Models\Claim;
 use Illuminate\Http\Request;
+use App\Models\Item;
+
 
 class VerificationController extends Controller
 {
@@ -34,5 +36,15 @@ class VerificationController extends Controller
         $verification->save();
 
         return redirect()->route('admin.verifications.index')->with('success', 'Verifikasi diperbarui.');
+    }
+    public function approve(Item $item) // Gunakan Route-Model Binding
+    {
+    // Update kolom verified_at dengan waktu saat ini
+    $item->update([
+        'verified_at' => now()
+    ]);
+
+    // Redirect kembali dengan pesan sukses
+    return redirect()->back()->with('success', 'Barang berhasil diverifikasi dan sekarang tampil di daftar publik.');
     }
 }

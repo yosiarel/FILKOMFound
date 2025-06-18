@@ -11,12 +11,30 @@ use Illuminate\Support\Facades\Storage;
 class ItemController extends Controller
 {
     /**
-     * Menampilkan daftar barang yang ditemukan oleh pengguna.
+     * Menampilkan daftar semua barang temuan yang bisa dilihat publik,
+     * dengan fungsionalitas filter, sort, dan search.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::where('user_id', Auth::id())->latest()->paginate(10);
-        return view('user.items.index', compact('items'));
+    // Memulai query untuk model Item
+    $itemsQuery = Item::query();
+
+    // --- UBAH BARIS INI ---
+    // Tambahkan 'found_date' ke dalam array agar ikut difilter
+    $itemsQuery->filter($request->only(['search', 'status', 'found_date']));
+
+    // Terapkan sorting
+    if ($request->get('sort') === 'asc') { // Menggunakan 'asc' untuk terlama
+        $itemsQuery->orderBy('found_date', 'asc');
+    } else {
+        // Default sort adalah yang terbaru
+        $itemsQuery->orderBy('found_date', 'desc');
+    }
+
+    // Eksekusi query dengan pagination dan sertakan query string (filter) di link pagination
+    $items = $itemsQuery->paginate(12)->withQueryString();
+
+    return view('user.items.index', compact('items'));
     }
 
     /**
@@ -44,19 +62,31 @@ class ItemController extends Controller
             $validated['image'] = $request->file('image')->store('item_images', 'public');
         }
 
-        $validated['user_id'] = Auth::id(); // Menambahkan ID pengguna yang sedang login
+        $validated['user_id'] = Auth::id();
 
         Item::create($validated);
 
-        return redirect()->route('user.items.index')->with('success', 'Barang temuan berhasil dilaporkan.');
+        // Redirect ke halaman daftar barang, bukan riwayat pribadi
+        return redirect()->route('user.items.index')->with('success', 'Barang temuan berhasil dilaporkan dan akan segera diverifikasi oleh admin.');
     }
+
+    /**
+     * Menampilkan detail satu barang.
+     * (Anda bisa membuat view detail jika diperlukan)
+     */
+    public function show(Item $item)
+    {
+        // Otorisasi: asumsikan semua orang bisa melihat detail
+        return view('user.items.show', compact('item'));
+    }
+
 
     /**
      * Menampilkan form untuk mengedit data barang temuan.
      */
     public function edit(Item $item)
     {
-        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak meng-update item ini?
+        // Otorisasi menggunakan ItemPolicy
         $this->authorize('update', $item);
 
         return view('user.items.edit', compact('item'));
@@ -67,7 +97,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
-        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak meng-update item ini?
+        // Otorisasi menggunakan ItemPolicy
         $this->authorize('update', $item);
 
         $validated = $request->validate([
@@ -79,7 +109,6 @@ class ItemController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada sebelum mengunggah yang baru
             if ($item->image) {
                 Storage::disk('public')->delete($item->image);
             }
@@ -88,6 +117,7 @@ class ItemController extends Controller
 
         $item->update($validated);
 
+        // Redirect ke halaman daftar barang
         return redirect()->route('user.items.index')->with('success', 'Barang berhasil diperbarui.');
     }
 
@@ -96,16 +126,16 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
-        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak menghapus item ini?
+        // Otorisasi menggunakan ItemPolicy
         $this->authorize('delete', $item);
 
-        // Hapus gambar terkait dari storage
         if ($item->image) {
             Storage::disk('public')->delete($item->image);
         }
 
         $item->delete();
 
-        return redirect()->route('user.items.index')->with('success', 'Barang berhasil dihapus.');
+        // Redirect kembali ke halaman sebelumnya
+        return redirect()->back()->with('success', 'Barang berhasil dihapus.');
     }
 }
