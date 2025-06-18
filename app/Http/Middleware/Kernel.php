@@ -67,7 +67,7 @@ class Kernel extends HttpKernel
         'checkRole' => \app\Http\Middleware\CheckRole::class, // Middleware untuk memeriksa peran pengguna
         'check.nim' => \App\Http\Middleware\CheckNIM::class,
         'check.user.status' => \App\Http\Middleware\CheckUserStatus::class,
-        'admin.only' => \App\Http\Middleware\AdminOnly::class,
+        //'admin.only' => \App\Http\Middleware\AdminOnly::class,
     ];
 
     /**

@@ -80,4 +80,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Claim::class);
     }
+    /**
+     * Check if the user has a specific role.
+     *
+     * @param string $role The role to check against (e.g., 'admin', 'mahasiswa').
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
 }

@@ -23,10 +23,6 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized.');
-        }
-
         return $next($request);
     }
 }
