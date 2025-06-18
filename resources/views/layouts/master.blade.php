@@ -46,7 +46,7 @@
         </a>
       @else
         {{-- BAGIAN YANG DIUBAH UNTUK TAMPILAN PROFIL (LOGOUT DIHILANGKAN) --}}
-        <a href="{{ route('user.profile') }}" class="flex items-center space-x-2 text-[#002C6A] hover:text-[#EA8255] transition">
+        <a href="{{ route('user.profile.index') }}" class="flex items-center space-x-2 text-[#002C6A] hover:text-[#EA8255] transition">
             <span class="font-semibold">{{ Auth::user()->name }}</span>
             <i class="fas fa-user-circle text-2xl"></i>
         </a>
@@ -77,7 +77,7 @@
         </a>
       @else
         {{-- BAGIAN YANG DIUBAH UNTUK TAMPILAN PROFIL MOBILE (LOGOUT DIHILANGKAN) --}}
-        <a href="{{ route('user.profile') }}" class="block text-center font-semibold text-[#002C6A] hover:text-[#EA8255] mb-2">
+        <a href="{{ route('user.profile.index') }}" class="block text-center font-semibold text-[#002C6A] hover:text-[#EA8255] mb-2">
             <i class="fas fa-user-circle text-2xl mr-2 align-middle"></i> {{ Auth::user()->name }}
         </a>
         {{-- Tombol Logout telah dihilangkan dari sini --}}

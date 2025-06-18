@@ -6,46 +6,40 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Item; // <-- Ganti dari LostAndFoundItem ke Item
-use App\Models\Claim; // Pastikan model Claim juga ada jika digunakan
+use App\Models\Announcement; // <-- Pastikan ini di-import
+use App\Models\Item;       // <-- Pastikan ini di-import
+use App\Models\Claim;      // <-- Pastikan ini di-import
 
 class ProfileController extends Controller
 {
     /**
-     * Menampilkan halaman profil pengguna.
-     *
-     * @return \Illuminate\View\View
+     * Menampilkan halaman utama profil pengguna.
      */
     public function index()
     {
-        $user = Auth::user();
-        // Anda bisa menambahkan data lain yang dibutuhkan di sini, misalnya:
-        // $user->load('lostItems', 'foundItems', 'claims'); // Jika Anda memiliki relasi di model User
-        return view('profile.index', compact('user'));
+        // Langsung arahkan ke view halaman profil
+        return view('profile.index');
     }
 
     /**
      * Memperbarui informasi profil pengguna.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request)
     {
         $user = Auth::user();
 
-        // Validasi data input
+        // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
+            // Pastikan validasi email mengabaikan email milik user itu sendiri
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|confirmed|min:8',
-            // 'nim' => 'nullable|string|max:20|unique:users,nim,' . $user->id, // jika ada di tabel users
-            // 'profile_picture' => 'nullable|image|max:2048', // jika ada upload gambar
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
 
+        // Hanya update password jika diisi
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
@@ -56,59 +50,48 @@ class ProfileController extends Controller
     }
 
     /**
-     * Menampilkan riwayat laporan kehilangan pengguna (lost items).
-     * Kolom 'status' di model Item Anda perlu mengindikasikan apakah itu 'lost' atau 'found'.
-     *
-     * @return \Illuminate\View\View
+     * Menampilkan riwayat laporan kehilangan (announcements) milik pengguna.
      */
-    public function announcements()
+    public function announcementsHistory()
     {
         $user = Auth::user();
+        // Mengambil dari model Announcement, bukan Item
+        $announcements = Announcement::where('user_id', $user->id)
+                                    ->latest()
+                                    ->paginate(10);
 
-        // Mengambil semua item yang dilaporkan hilang oleh pengguna ini
-        // Asumsi kolom 'status' di tabel 'items' digunakan untuk membedakan 'lost'/'found'
-        $lostItems = Item::where('user_id', $user->id)
-                            ->where('status', 'lost') // <-- Menggunakan kolom 'status'
-                            ->orderByDesc('created_at')
-                            ->get();
-
-        return view('profile.announcements.history', compact('lostItems'));
+        // Anda perlu membuat view ini: resources/views/profile/announcements/history.blade.php
+        return view('profile.announcements.history', compact('announcements'));
     }
 
     /**
-     * Menampilkan riwayat barang temuan pengguna (found items).
-     *
-     * @return \Illuminate\View\View
+     * Menampilkan riwayat barang temuan (items) milik pengguna.
      */
-    public function foundItems()
+    public function foundItemsHistory()
     {
         $user = Auth::user();
+        // Mengambil dari model Item
+        $items = Item::where('user_id', $user->id)
+                     ->latest()
+                     ->paginate(10);
 
-        // Mengambil semua item yang ditemukan oleh pengguna ini
-        // Asumsi kolom 'status' di tabel 'items' digunakan untuk membedakan 'lost'/'found'
-        $foundItems = Item::where('user_id', $user->id)
-                            ->where('status', 'found') // <-- Menggunakan kolom 'status'
-                            ->orderByDesc('created_at')
-                            ->get();
-
-        return view('profile.found.history', compact('foundItems'));
+        // Anda perlu membuat view ini: resources/views/profile/history/found_items.blade.php
+        return view('profile.found.history', compact('items'));
     }
 
     /**
-     * Menampilkan riwayat klaim pengguna.
-     *
-     * @return \Illuminate\View\View
+     * Menampilkan riwayat klaim (claims) milik pengguna.
      */
-    public function claimedItems()
+    public function claimedItemsHistory()
     {
         $user = Auth::user();
-
-        // Mengambil semua klaim yang dibuat oleh pengguna ini
-        // Asumsi ada model Claim dan kolom 'user_id' di tabel 'claims'
-        $claims = Claim::where('user_id', $user->id)
-                        ->orderByDesc('created_at')
-                        ->get();
-
+        // Mengambil dari model Claim, dan memuat data 'item' terkait untuk efisiensi
+        $claims = Claim::with('item')
+                       ->where('user_id', $user->id)
+                       ->latest()
+                       ->paginate(10);
+        
+        // Anda perlu membuat view ini: resources/views/profile/history/claims.blade.php
         return view('profile.claims.history', compact('claims'));
     }
 }

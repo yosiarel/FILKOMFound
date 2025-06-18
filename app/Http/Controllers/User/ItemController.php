@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth; // <-- DIUBAH: Kita import Auth Facade
 
 class ItemController extends Controller
 {
     /**
-     * Menampilkan daftar semua item milik pengguna.
+     * Menampilkan daftar barang yang ditemukan oleh pengguna.
      */
     public function index()
     {
-        $items = Item::latest()->paginate(10);
+        $items = Item::where('user_id', Auth::id())->latest()->paginate(10);
         return view('user.items.index', compact('items'));
     }
 
     /**
-     * Menampilkan form untuk membuat item baru.
+     * Menampilkan form untuk membuat laporan barang temuan baru.
      */
     public function create()
     {
@@ -28,89 +28,84 @@ class ItemController extends Controller
     }
 
     /**
-     * Menyimpan item baru ke database.
+     * Menyimpan laporan barang temuan baru ke database.
      */
     public function store(Request $request)
     {
-        // 1. Validasi semua input dari form
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'found_date' => 'required|date',
+            'description' => 'required|string',
             'location' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'found_date' => 'required|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // 2. Handle jika ada file gambar yang di-upload
         if ($request->hasFile('image')) {
-            // DIUBAH: Sintaks upload file disederhanakan dan diperbaiki
-            $path = $request->file('image')->store('item_images', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('item_images', 'public');
         }
 
-        // 3. Simpan data ke database
-        // DIUBAH: Menggunakan Auth::user() agar lebih eksplisit untuk editor kode
-        Auth::user()->items()->create($validated);
+        $validated['user_id'] = Auth::id(); // Menambahkan ID pengguna yang sedang login
 
-        // 4. Kembali ke halaman index dengan pesan sukses
-        return redirect()->route('user.items.index')->with('success', 'Barang berhasil dilaporkan!');
+        Item::create($validated);
+
+        return redirect()->route('user.items.index')->with('success', 'Barang temuan berhasil dilaporkan.');
     }
 
     /**
-     * Menampilkan detail satu item.
-     */
-    public function show(Item $item)
-    {
-        return view('user.items.show', compact('item'));
-    }
-
-    /**
-     * Menampilkan form untuk mengedit item yang sudah ada.
+     * Menampilkan form untuk mengedit data barang temuan.
      */
     public function edit(Item $item)
     {
-        // abort_if($item->user_id !== Auth::id(), 403, 'Anda tidak diizinkan mengedit barang ini.');
-        return view('user.items.create', compact('item'));
+        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak meng-update item ini?
+        $this->authorize('update', $item);
+
+        return view('user.items.edit', compact('item'));
     }
 
     /**
-     * Mengupdate data item yang ada di database.
+     * Memperbarui data barang temuan di database.
      */
     public function update(Request $request, Item $item)
     {
-        // abort_if($item->user_id !== Auth::id(), 403, 'Anda tidak diizinkan mengedit barang ini.');
+        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak meng-update item ini?
+        $this->authorize('update', $item);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'found_date' => 'required|date',
+            'description' => 'required|string',
             'location' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'found_date' => 'required|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada sebelum mengunggah yang baru
             if ($item->image) {
                 Storage::disk('public')->delete($item->image);
             }
-            $path = $request->file('image')->store('item_images', 'public');
-            $validated['image'] = $path;
+            $validated['image'] = $request->file('image')->store('item_images', 'public');
         }
 
         $item->update($validated);
-        return redirect()->route('user.items.index')->with('success', 'Data barang berhasil diupdate!');
+
+        return redirect()->route('user.items.index')->with('success', 'Barang berhasil diperbarui.');
     }
 
     /**
-     * Menghapus item dari database.
+     * Menghapus data barang temuan dari database.
      */
     public function destroy(Item $item)
     {
-        // abort_if($item->user_id !== Auth::id(), 403, 'Anda tidak diizinkan menghapus barang ini.');
+        // Otorisasi menggunakan ItemPolicy: Apakah pengguna ini berhak menghapus item ini?
+        $this->authorize('delete', $item);
 
+        // Hapus gambar terkait dari storage
         if ($item->image) {
             Storage::disk('public')->delete($item->image);
         }
+
         $item->delete();
-        return redirect()->route('user.items.index')->with('success', 'Data barang berhasil dihapus!');
+
+        return redirect()->route('user.items.index')->with('success', 'Barang berhasil dihapus.');
     }
 }
