@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Panggil seeder lain setelah pengguna dibuat
         $this->call([
-            ItemSeeder::class,
+            // ItemSeeder::class,
             // Anda bisa menambahkan seeder lain di sini jika ada,
             // contoh: AnnouncementSeeder::class
         ]);

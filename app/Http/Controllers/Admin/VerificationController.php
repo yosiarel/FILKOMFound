@@ -2,56 +2,71 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class VerificationController extends Controller
 {
+    // ... method index, approve, reject tetap sama ...
+
     /**
-     * Menampilkan halaman detail untuk verifikasi satu item.
+     * --- METHOD BARU DI SINI ---
+     * Menampilkan satu halaman detail barang yang dinamis untuk admin.
      */
+    public function showUnifiedDetail(Item $item)
+    {
+        // Muat data relasi yang diperlukan berdasarkan status
+        // Jika sedang diklaim, muat semua data klaim beserta user-nya
+        if ($item->status === 'claimed') {
+            $item->load('claims.user');
+        }
+        // Jika sudah dikembalikan, muat data klaim yang berhasil (diterima)
+        elseif ($item->status === 'returned') {
+            $item->load(['claims' => function ($query) {
+                $query->where('status', 'diterima')->with('user');
+            }]);
+        }
+        
+        // Kirim data item ke view baru yang akan kita buat
+        return view('admin.items.show_detail', compact('item'));
+    }
+
+    public function index()
+    {
+        $unverifiedItems = Item::whereNull('verified_at')
+                                ->latest()
+                                ->paginate(12);
+
+        return view('admin.verifications.index', compact('unverifiedItems'));
+    }
+
     public function show(Item $item)
     {
-        // Cukup muat relasi user (pelapor)
-        $item->load('user'); 
-        
+        if ($item->verified_at) {
+        }
         return view('verifications.show', compact('item'));
     }
 
-    /**
-     * Menyetujui laporan barang temuan (verifikasi awal).
-     */
     public function approve(Item $item)
     {
-        // Mencegah aksi ganda
-        if ($item->verified_at) {
-            return redirect()->back()->with('error', 'Laporan ini sudah pernah diverifikasi.');
+        if (!$item->verified_at) {
+            $item->update(['verified_at' => now()]);
+            // Redirect ke detail view yang baru, bukan ke index
+            return redirect()->route('user.admin.items.show_detail', $item)->with('success', 'Barang berhasil diverifikasi dan sekarang tampil untuk publik.');
         }
-
-        // Update kolom verified_at dengan waktu saat ini
-        $item->update(['verified_at' => now()]);
-
-        return redirect()->route('user.items.index')->with('success', 'Barang berhasil diverifikasi dan sekarang tampil di daftar publik.');
+        return redirect()->back()->with('error', 'Barang ini sudah pernah diverifikasi sebelumnya.');
     }
 
-    /**
-     * Menolak dan menghapus laporan barang temuan.
-     */
     public function reject(Item $item)
     {
-        // Mencegah aksi ganda jika admin membuka halaman dari history
-        if ($item->verified_at) {
-            return redirect()->back()->with('error', 'Tidak bisa menolak laporan yang sudah diverifikasi.');
-        }
-
         if ($item->image) {
             Storage::disk('public')->delete($item->image);
         }
-
         $item->delete();
 
-        return redirect()->route('user.items.index')->with('success', 'Laporan barang telah ditolak dan dihapus.');
+        // Redirect ke daftar verifikasi, karena item sudah tidak ada
+        return redirect()->route('user.admin.verifications.index')->with('success', 'Laporan temuan berhasil ditolak dan dihapus.');
     }
 }
