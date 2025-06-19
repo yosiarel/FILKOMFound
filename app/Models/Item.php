@@ -92,4 +92,22 @@ class Item extends Model
     
     // Anda bisa menambahkan filter lain di sini, misalnya berdasarkan tanggal (posted_at)
     }
+    protected function adminFormattedStatus(): Attribute
+    {
+    return Attribute::make(
+        get: function () {
+            // Prioritas pertama: jika belum diverifikasi
+            if (!$this->verified_at) {
+                return 'Belum Diverifikasi';
+            }
+            // Jika sudah diverifikasi, gunakan status yang ada
+            return match ($this->status) {
+                'found' => 'Belum Dikembalikan',
+                'claimed' => 'Sedang Diajukan',
+                'returned' => 'Sudah Dikembalikan',
+                default => 'Tidak Diketahui',
+            };
+        },
+    );
+    }
 }

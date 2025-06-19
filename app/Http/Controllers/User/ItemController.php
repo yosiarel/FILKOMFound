@@ -16,22 +16,27 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-    // Memulai query untuk model Item
-    $itemsQuery = Item::query();
+    // Eager load relasi 'user' untuk efisiensi
+    $itemsQuery = Item::query()->with('user');
 
-    // --- UBAH BARIS INI ---
-    // Tambahkan 'found_date' ke dalam array agar ikut difilter
+    // Terapkan filter berdasarkan peran SEBELUM filter lainnya
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        // Admin bisa melihat semua item, tidak ada filter awal.
+    } else {
+        // Mahasiswa & tamu HANYA melihat item yang sudah diverifikasi.
+        $itemsQuery->whereNotNull('verified_at');
+    }
+
+    // Terapkan filter dari request (search, status, tanggal)
     $itemsQuery->filter($request->only(['search', 'status', 'found_date']));
 
     // Terapkan sorting
-    if ($request->get('sort') === 'asc') { // Menggunakan 'asc' untuk terlama
+    if ($request->get('sort') === 'asc') {
         $itemsQuery->orderBy('found_date', 'asc');
     } else {
-        // Default sort adalah yang terbaru
-        $itemsQuery->orderBy('found_date', 'desc');
+        $itemsQuery->orderBy('found_date', 'desc'); // Terbaru sebagai default
     }
 
-    // Eksekusi query dengan pagination dan sertakan query string (filter) di link pagination
     $items = $itemsQuery->paginate(12)->withQueryString();
 
     return view('user.items.index', compact('items'));
@@ -138,4 +143,22 @@ class ItemController extends Controller
         // Redirect kembali ke halaman sebelumnya
         return redirect()->back()->with('success', 'Barang berhasil dihapus.');
     }
+    protected function adminFormattedStatus(): Attribute    
+    {
+    return Attribute::make(
+        get: function () {
+            // Prioritas pertama: jika belum diverifikasi
+            if (!$this->verified_at) {
+                return 'Belum Diverifikasi';
+            }
+            // Jika sudah diverifikasi, gunakan status yang ada
+            return match ($this->status) {
+                'found' => 'Belum Dikembalikan',
+                'claimed' => 'Sedang Diajukan',
+                'returned' => 'Sudah Dikembalikan',
+                default => 'Tidak Diketahui',
+            };
+        },
+    );
+    }   
 }

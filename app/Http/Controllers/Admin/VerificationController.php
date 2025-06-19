@@ -3,48 +3,55 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Verification;
-use App\Models\Claim;
-use Illuminate\Http\Request;
 use App\Models\Item;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VerificationController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan halaman detail untuk verifikasi satu item.
+     */
+    public function show(Item $item)
     {
-        $verifications = Verification::with(['claim', 'claim.user', 'claim.item'])->latest()->get();
-        return view('admin.verifications.index', compact('verifications'));
+        // Cukup muat relasi user (pelapor)
+        $item->load('user'); 
+        
+        return view('verifications.show', compact('item'));
     }
 
-    public function show($id)
+    /**
+     * Menyetujui laporan barang temuan (verifikasi awal).
+     */
+    public function approve(Item $item)
     {
-        $verification = Verification::with(['claim', 'claim.user', 'claim.item'])->findOrFail($id);
-        return view('admin.verifications.show', compact('verification'));
+        // Mencegah aksi ganda
+        if ($item->verified_at) {
+            return redirect()->back()->with('error', 'Laporan ini sudah pernah diverifikasi.');
+        }
+
+        // Update kolom verified_at dengan waktu saat ini
+        $item->update(['verified_at' => now()]);
+
+        return redirect()->route('user.items.index')->with('success', 'Barang berhasil diverifikasi dan sekarang tampil di daftar publik.');
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Menolak dan menghapus laporan barang temuan.
+     */
+    public function reject(Item $item)
     {
-        $request->validate([
-            'status' => ['required', 'in:approved,rejected'],
-            'note' => ['nullable', 'string']
-        ]);
+        // Mencegah aksi ganda jika admin membuka halaman dari history
+        if ($item->verified_at) {
+            return redirect()->back()->with('error', 'Tidak bisa menolak laporan yang sudah diverifikasi.');
+        }
 
-        $verification = Verification::findOrFail($id);
-        $verification->status = $request->status;
-        $verification->note = $request->note;
-        $verification->save();
+        if ($item->image) {
+            Storage::disk('public')->delete($item->image);
+        }
 
-        return redirect()->route('admin.verifications.index')->with('success', 'Verifikasi diperbarui.');
-    }
-    public function approve(Item $item) // Gunakan Route-Model Binding
-    {
-    // Update kolom verified_at dengan waktu saat ini
-    $item->update([
-        'verified_at' => now()
-    ]);
+        $item->delete();
 
-    // Redirect kembali dengan pesan sukses
-    return redirect()->back()->with('success', 'Barang berhasil diverifikasi dan sekarang tampil di daftar publik.');
+        return redirect()->route('user.items.index')->with('success', 'Laporan barang telah ditolak dan dihapus.');
     }
 }

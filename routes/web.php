@@ -64,17 +64,16 @@ Route::middleware(['auth', 'checkRole:admin,mahasiswa'])->name('user.')->group(f
     |----------------------------------------------------------------------
     | Rute Khusus Admin (di dalam grup utama)
     |----------------------------------------------------------------------
-    | Halaman ini hanya dapat diakses oleh pengguna dengan peran 'admin'.
     */
     Route::middleware('checkRole:admin')->prefix('admin-tasks')->name('admin.')->group(function () {
         
-        Route::get('/verifications', [VerificationController::class, 'index'])->name('verifications.index');
-        Route::get('/verifications/{id}', [VerificationController::class, 'show'])->name('verifications.show');
-        Route::post('/verifications/{id}/approve', [VerificationController::class, 'approve'])->name('verifications.approve');
-        Route::post('/verifications/{id}/reject', [VerificationController::class, 'reject'])->name('verifications.reject');
+        // PERBAIKAN: Ubah {id} menjadi {item} agar cocok dengan controller
+        Route::get('/verifications/{item}', [VerificationController::class, 'show'])->name('verifications.show');
+        Route::post('/verifications/{item}/approve', [VerificationController::class, 'approve'])->name('verifications.approve');
+        Route::post('/verifications/{item}/reject', [VerificationController::class, 'reject'])->name('verifications.reject');
         
-        // Anda bisa menambahkan rute khusus admin lainnya di sini
-        // Contoh: Route::get('/manage-users', [ManageUsersController::class, 'index'])->name('users.index');
+        // Rute untuk handover claim (jika Anda ingin mengimplementasikannya nanti)
+        // Route::post('/claims/{claim}/handover', [VerificationController::class, 'handover'])->name('verifications.handover');
     });
 
 });
