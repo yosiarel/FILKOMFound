@@ -54,7 +54,7 @@ class ItemController extends Controller
             'item_name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
-            'found_date' => 'required|date|before_or_equal:today',
+            'found_date' => ['required', 'date', 'before_or_equal:' . now()->toDateTimeString()],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
