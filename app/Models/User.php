@@ -12,80 +12,36 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    // Pastikan 'nim' dan 'profile_picture' (jika ada) ada di fillable jika ingin diisi secara massal
-    protected $fillable = ['name', 'email', 'password', 'nim', 'role', 'profile_picture']; // <--- Tambahkan 'profile_picture' jika Anda akan menggunakannya
+    protected $fillable = ['name', 'email', 'password', 'nim', 'role', 'profile_picture'];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
     /**
-     * Mendefinisikan bahwa seorang User bisa memiliki banyak Item yang berstatus 'found'.
-     * Ini akan digunakan untuk "Riwayat Temuan".
+     * ===============================================
+     * --- PASTIKAN FUNGSI INI ADA DI DALAM FILE ANDA ---
+     * ===============================================
+     * Relasi untuk semua item yang dilaporkan oleh user.
      */
-    public function foundItems(): HasMany // <--- Mengganti/memperjelas fungsi 'items'
+    public function items(): HasMany
     {
-        return $this->hasMany(Item::class)->where('status', 'found');
-    }
-    
-    /**
-     * Mendefinisikan bahwa seorang User bisa memiliki banyak Item yang berstatus 'lost'.
-     * Ini akan digunakan untuk "Riwayat Laporan Kehilangan".
-     */
-    public function lostItems(): HasMany // <--- Relasi baru untuk item hilang
-    {
-        return $this->hasMany(Item::class)->where('status', 'lost');
+        return $this->hasMany(Item::class);
     }
 
-    // <-- Sesuaikan relasi announcements() ini: -->
-    /**
-     * Mendefinisikan bahwa seorang User bisa memiliki banyak Announcement (jika user bisa membuat pengumuman umum).
-     * Jika ini hanya untuk pengumuman sistem yang dibuat admin, relasi ini mungkin tidak diperlukan di sini.
-     */
     public function announcements(): HasMany
     {
-        return $this->hasMany(Announcement::class); // Jika user bisa membuat pengumuman
+        return $this->hasMany(Announcement::class);
     }
 
-    /**
-     * Get all of the reports for the User.
-     */
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class);
-    }
-
-    /**
-     * Get all of the claims for the User.
-     */
     public function claims(): HasMany
     {
         return $this->hasMany(Claim::class);
     }
-    /**
-     * Check if the user has a specific role.
-     *
-     * @param string $role The role to check against (e.g., 'admin', 'mahasiswa').
-     * @return bool
-     */
+
     public function hasRole(string $role): bool
     {
         return $this->role === $role;

@@ -4,37 +4,40 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\AnnouncementReport; // Pastikan ini di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AnnouncementController extends Controller
 {
     /**
-     * Menampilkan daftar semua pengumuman.
+     * Menampilkan daftar semua pengumuman dengan filter dan sort.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua pengumuman yang statusnya 'lost' (belum ditemukan)
-        $announcements = Announcement::with('user')
-                                    ->where('status', 'lost')
-                                    ->latest()
-                                    ->paginate(10);
+        $announcementsQuery = Announcement::with('user')
+                                    ->where('status', 'lost');
+        
+        $announcementsQuery->filter($request->only(['search', 'lost_date']));
+
+        if ($request->get('sort') === 'asc') {
+            $announcementsQuery->orderBy('lost_time', 'asc');
+        } else {
+            $announcementsQuery->orderBy('lost_time', 'desc');
+        }
+
+        $announcements = $announcementsQuery->paginate(10)->withQueryString();
         
         return view('user.announcements.index', compact('announcements'));
     }
 
-    /**
-     * Menampilkan form untuk membuat pengumuman baru.
-     */
     public function create()
     {
-        return view('user.announcements.create'); // Anda perlu membuat view ini
+        return view('user.announcements.create');
     }
 
-    /**
-     * Menyimpan pengumuman baru ke database.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -50,29 +53,50 @@ class AnnouncementController extends Controller
             $validated['image'] = $path;
         }
 
-        Auth::user()->announcements()->create($validated);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $user->announcements()->create($validated);
 
-        return redirect()->route('user.announcements.index')->with('success', 'Pengumuman berhasil dibuat!');
+        return redirect()->route('user.announcements.index')->with('success', 'Pengumuman telah dibuat. Silahkan cek Daftar Barang Temuan secara berkala.');
+    }
+    
+    /**
+     * Fungsi baru untuk menangani report dari user.
+     * INI ADALAH FUNGSI YANG HILANG DI FILE ANDA.
+     */
+    public function report(Request $request, Announcement $announcement)
+    {
+        $user = Auth::user();
+
+        if ($user->id === $announcement->user_id) {
+            return back()->with('error', 'Anda tidak dapat melaporkan pengumuman Anda sendiri.');
+        }
+
+        $existingReport = AnnouncementReport::where('announcement_id', $announcement->id)
+                                            ->where('user_id', $user->id)
+                                            ->exists();
+
+        if ($existingReport) {
+            return back()->with('error', 'Anda sudah pernah melaporkan pengumuman ini.');
+        }
+
+        AnnouncementReport::create([
+            'announcement_id' => $announcement->id,
+            'user_id' => $user->id,
+            'reason' => 'Dilaporkan oleh pengguna.',
+        ]);
+        
+        return back()->with('success', 'Aduan Anda telah terkirim dan akan ditinjau oleh admin.');
     }
 
-    /**
-     * Menampilkan form untuk mengedit pengumuman.
-     */
     public function edit(Announcement $announcement)
     {
-        // Otorisasi: pastikan hanya pemilik yang bisa mengakses halaman edit
         $this->authorize('update', $announcement);
-
-        // Gunakan view yang sama dengan 'create' dan kirim data pengumuman
         return view('user.announcements.create', compact('announcement'));
     }
 
-    /**
-     * Menyimpan perubahan dari form edit.
-     */
     public function update(Request $request, Announcement $announcement)
     {
-        // Otorisasi: pastikan hanya pemilik yang bisa mengupdate
         $this->authorize('update', $announcement);
 
         $validated = $request->validate([
@@ -84,7 +108,6 @@ class AnnouncementController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($announcement->image) {
                 Storage::disk('public')->delete($announcement->image);
             }
@@ -94,27 +117,21 @@ class AnnouncementController extends Controller
 
         $announcement->update($validated);
 
-        // Redirect ke halaman riwayat setelah update, karena lebih relevan
-        return redirect()->route('user.profile.announcementshistory')->with('success', 'Pengumuman berhasil diperbarui!');
+        // --- PERBAIKAN REDIRECT DI SINI ---
+        // Arahkan kembali ke halaman daftar pengumuman utama
+        return redirect()->route('user.announcements.index')->with('success', 'Pengumuman berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus pengumuman dari database.
-     */
     public function destroy(Announcement $announcement)
     {
-        // Otorisasi: pastikan hanya pemilik yang bisa menghapus
         $this->authorize('delete', $announcement);
 
-        // Hapus gambar dari storage jika ada
         if ($announcement->image) {
             Storage::disk('public')->delete($announcement->image);
         }
 
         $announcement->delete();
-
-        // Redirect kembali ke halaman sebelumnya (misal: halaman riwayat) dengan pesan sukses
+        
         return redirect()->back()->with('success', 'Pengumuman berhasil dihapus.');
     }
-    
 }

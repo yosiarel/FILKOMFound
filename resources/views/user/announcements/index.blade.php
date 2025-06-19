@@ -24,7 +24,30 @@
                 <span class="block sm:inline">{{ session('success') }}</span>
             </div>
         @endif
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
         
+        {{-- Form Filter dan Sort --}}
+        <form action="{{ route('user.announcements.index') }}" method="GET" class="mb-6 bg-white p-4 rounded-lg shadow-sm border">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="md:col-span-2 lg:col-span-2">
+                    <label for="search" class="sr-only">Cari</label>
+                    <input type="text" name="search" id="search" placeholder="Cari nama barang atau lokasi..." value="{{ request('search') }}" class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+                <div>
+                    <label for="lost_date" class="sr-only">Tanggal Hilang</label>
+                    <input type="date" name="lost_date" id="lost_date" value="{{ request('lost_date') }}" class="w-full border-gray-300 rounded-lg shadow-sm">
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700">Filter</button>
+                    <a href="{{ route('user.announcements.index') }}" class="w-full text-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-100">Reset</a>
+                </div>
+            </div>
+        </form>
+
         <div class="space-y-6">
             @forelse ($announcements as $announcement)
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-start gap-6">
@@ -62,12 +85,24 @@
                                 Diumumkan oleh: {{ $announcement->user->name ?? 'Anonim' }}
                             </p>
                             
-                            {{-- PENAMBAHAN TOMBOL KHUSUS ADMIN --}}
-                            @if(Auth::check() && Auth::user()->role === 'admin')
                             <div class="flex items-center gap-3">
+                                {{-- Tombol Report, hanya muncul untuk mahasiswa dan bukan pemilik --}}
+                                @if(Auth::check() && Auth::user()->role === 'mahasiswa' && Auth::id() !== $announcement->user_id)
+                                <form action="{{ route('user.announcements.report', $announcement->id) }}" method="POST" onsubmit="return confirm('Laporkan pengumuman ini ke admin?');">
+                                    @csrf
+                                    <button type="submit" class="text-gray-500 hover:text-red-600 text-xs" title="Laporkan Pengumuman">
+                                        <i class="fas fa-flag"></i> Laporkan
+                                    </button>
+                                </form>
+                                @endif
+                                
+                                {{-- Tombol Edit/Hapus, hanya muncul untuk admin atau pemilik --}}
+                                @can('update', $announcement)
                                 <a href="{{ route('user.announcements.edit', $announcement->id) }}" class="text-gray-500 hover:text-blue-600" title="Edit Pengumuman">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @endcan
+                                @can('delete', $announcement)
                                 <form action="{{ route('user.announcements.destroy', $announcement->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengumuman ini?');">
                                     @csrf
                                     @method('DELETE')
@@ -75,16 +110,15 @@
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
+                                @endcan
                             </div>
-                            @endif
-                            {{-- AKHIR DARI TOMBOL KHUSUS ADMIN --}}
                         </div>
                     </div>
                 </div>
             @empty
                 <div class="bg-white text-center p-12 rounded-xl shadow-sm border border-gray-200">
                     <i class="fas fa-bullhorn text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 font-semibold">Belum ada pengumuman barang hilang.</p>
+                    <p class="text-gray-500 font-semibold">Belum ada pengumuman barang hilang atau tidak ada yang cocok dengan filter Anda.</p>
                 </div>
             @endforelse
         </div>
